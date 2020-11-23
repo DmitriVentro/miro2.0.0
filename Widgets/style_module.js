@@ -23,7 +23,7 @@ exports.Line = function (pointA, pointB, color) {
         }
     };
 }
-exports.Widget = function (x, y, text, back_color) {
+exports.Widget = function (x, y, text, backColor, textColor) {
     this.data = {
         "type": "shape",
         "x": x,
@@ -33,7 +33,7 @@ exports.Widget = function (x, y, text, back_color) {
         "height": 133.76499068195324,
         "text": `<p>${text}</p>`,
         "style": {
-            "backgroundColor": `${back_color}`,
+            "backgroundColor": `${backColor}`,
             "backgroundOpacity": 1.0,
             "borderColor": "#ffffff",
             "borderOpacity": 1.0,
@@ -44,13 +44,13 @@ exports.Widget = function (x, y, text, back_color) {
             "shapeType": "rounded_rectangle",
             "textAlign": "center",
             "textAlignVertical": "middle",
-            "textColor": "#ffffff"
+            "textColor": `${textColor}`
         }
     }
 }
 
 //Legend
-exports.Legend = function (x, y, text, back_color) {
+exports.Legend = function (x, y, text, backColor, textColor) {
     this.data = {
         "type": "shape",
         "x": x,
@@ -60,7 +60,7 @@ exports.Legend = function (x, y, text, back_color) {
         "height": 64.4420794822017,
         "text": `${text}`,
         "style": {
-            "backgroundColor": `${back_color}`,
+            "backgroundColor": `${backColor}`,
             "backgroundOpacity": 1.0,
             "borderColor": "#ffffff",
             "borderOpacity": 1.0,
@@ -71,7 +71,7 @@ exports.Legend = function (x, y, text, back_color) {
             "shapeType": "rectangle",
             "textAlign": "center",
             "textAlignVertical": "middle",
-            "textColor": "#ffffff"
+            "textColor": `${textColor}`
         }
     }
 }
@@ -89,7 +89,9 @@ exports.Color = {
         Marketing: '#414bb2',
         Des: '#2d9bf0',
         RPorEmpty: '#d78f1c',
-        DeadGreen: '#d9ead3'
+        DeadGreen: '#d9ead3',
+        BLACK: '#000000',
+        WHITE: '#ffffff'
     },
     //в виде RED GREEN BLUE:
     RGB:
