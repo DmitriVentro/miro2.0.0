@@ -179,7 +179,8 @@ async function a() {
             requestData.toSendProcessTitle.push(SubProcessItem.Name[x][0])
             
         }
-        a = new Widget.Widget(requestData);
+        // a = new Widget.Widget(requestData);
+        send.sendData(SubProcessItem);
         // console.log(requestData.toSendDataMilestone);
         // send.sendData(requestData);
         

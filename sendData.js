@@ -15,12 +15,20 @@ exports.sendData = async function(tableData) {
     // console.log(a);
     //Точка отправки
     promise = new Promise((resolve, reject) => {
-        practices = miro_func.unique(tableData.toSendDataPractice);
-        dataa = new style.Widget(0, 0, tableData.toSendDataPractice[3], style.Color.HEX.BA);
+        practices = miro_func.unique(tableData.Practice);
+        dataa = new style.Widget(0, 0, tableData.Practice[3], style.Color.HEX.BA);
         resolve(dataaconfig = new style.MiroConfig(dataa.data));
     })
     promise.then(() => {
         console.log(dataaconfig.data);
-        axios(dataaconfig.data);
+        axios(dataaconfig.data)
+        .then((response)=>{
+            console.log(response.data.id)
+            console.log(response.data.x)
+            console.log(response.data.y)
+            
+        })
     })
+    return []
 }
+this.sendData();
