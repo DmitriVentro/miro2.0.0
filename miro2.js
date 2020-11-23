@@ -146,7 +146,7 @@ async function a() {
     });//Промис закончился
     //Тут можно исполнять код после того, как код в вышеупомянутом промисе окончил свою работу
     mainPromise.then(() => {
-        console.log(`Загрузка таблицы ${rg.tid} с листа ${rg.sid} прошла успешно.`)
+        console.log(`Загрузка таблицы https://docs.google.com/spreadsheets/d/${rg.tid} с листа ${rg.sid} прошла успешно.`)
         var SubProcessItem =
         {
             Name: responseData.dataProcess,
@@ -163,7 +163,7 @@ async function a() {
             ColorProcess: responseData.colorValuesProcess, //цвета процессов
             ColorMilestone: responseData.colorValuesMilestone,
             MilestoneTitleCount: milestoneTitleCount(responseData.lastRow, responseData.dataMilestone),
-            MilestoneTitle: milestoneTitle(responseData.dataMilestone, responseData.lastRow)
+            MilestoneTitle: milestoneTitle(responseData.dataMilestone, responseData.lastRow),
         }
         var ProcessTitleCount = getTitlesCountsProcess(responseData.lastRow, SubProcessItem);
         SubProcessItem.MilestoneTitleCount.push(ProcessTitleCount[ProcessTitleCount.length - 1]);
@@ -175,9 +175,9 @@ async function a() {
         // for(x = 0; x < 11; x++) { console.log(SubProcessItem.Name[x][0]); }
         for (x = 0; x < SubProcessItem.MilestoneTitleCount.length - 1; x++)//Перебор первого массива с титлами Вехов
         {
+            requestData.toSendProcessTitle.push(SubProcessItem.Name[x][0])
             requestData.toSendDataMilestone = SubProcessItem.MilestoneTitle[x];
             for (y = 0; y < ProcessTitleCount.length - 1; y = y + 2) //Перебор второго массива с титлами Процесса
-            requestData.toSendProcessTitle.push(SubProcessItem.Name[y][0])
             {
                 if (ProcessTitleCount[y] >= SubProcessItem.MilestoneTitleCount[x]
                     && ProcessTitleCount[y + 1] <= SubProcessItem.MilestoneTitleCount[x + 1]) {
@@ -186,11 +186,12 @@ async function a() {
                         requestData.toSendDataProcess.push(SubProcessItem.Name[z][0]);
                         requestData.toSendDataPractice.push(SubProcessItem.Practice[z][0]);
                         requestData.toSendDataUser.push(SubProcessItem.User[z][0]);
-                        // console.log(SubProcessItem.Practice[z], SubProcessItem.Name[z], SubProcessItem.User[z]);
+                        
                     }
                 }
             }
         }
+        console.log("test");
         send.sendData(requestData);
         
     })
@@ -248,11 +249,11 @@ function getTitlesCountsProcess(lastRow, SubProcessItem) {
     }
     return tempArray;
 }
-function getTitlesProcess(lastRow, SubProcessItem) {
+exports.getTitlesProcess = function(lastRow, SubProcessItem) {
     var tempArray = [];
     for (let n = 0; n < lastRow; n++) {
         if (SubProcessItem.ColorProcess[n] == '#d9ead3'
-            && SubProcessItem.isProcessBlank[n] == true) { tempArray.push(SubProcessItem.Name[n]) }
+            && SubProcessItem.isProcessBlank[n] == true) { tempArray.push(SubProcessItem.Name[n]); console.log(tempArray[n]) }
     }
     return tempArray;
 }
