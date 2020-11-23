@@ -2,6 +2,7 @@ var axios = require('axios');
 var qs = require('qs');
 var fs = require('fs');
 var send = require('./sendData.js');
+var Widget = require('./Widget');
 // var vmiro = require('./files/miroVariables.js');
 // var bmiro = require('./files/sendData.js');
 var style = require('./Widgets/style_module.js')
@@ -176,23 +177,11 @@ async function a() {
         for (x = 0; x < SubProcessItem.MilestoneTitleCount.length - 1; x++)//Перебор первого массива с титлами Вехов
         {
             requestData.toSendProcessTitle.push(SubProcessItem.Name[x][0])
-            requestData.toSendDataMilestone = SubProcessItem.MilestoneTitle[x];
-            for (y = 0; y < ProcessTitleCount.length - 1; y = y + 2) //Перебор второго массива с титлами Процесса
-            {
-                if (ProcessTitleCount[y] >= SubProcessItem.MilestoneTitleCount[x]
-                    && ProcessTitleCount[y + 1] <= SubProcessItem.MilestoneTitleCount[x + 1]) {
-                    for (let z = ProcessTitleCount[y] + 1; z < ProcessTitleCount[y + 1]; z++) //Перебор одного блока массива
-                    {
-                        requestData.toSendDataProcess.push(SubProcessItem.Name[z][0]);
-                        requestData.toSendDataPractice.push(SubProcessItem.Practice[z][0]);
-                        requestData.toSendDataUser.push(SubProcessItem.User[z][0]);
-                        
-                    }
-                }
-            }
+            
         }
-        console.log("test");
-        send.sendData(requestData);
+        a = new Widget.Widget(requestData);
+        // console.log(requestData.toSendDataMilestone);
+        // send.sendData(requestData);
         
     })
 }
