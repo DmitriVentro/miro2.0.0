@@ -18,10 +18,11 @@ exports.Line = function (pointA, pointB, color) {
             "borderStyle": "normal",
             "borderWidth": 1.0,
             "lineEndType": "opaque_block",
-            "lineStartType": "opaque_block",
+            "lineStartType": "none",
             "lineType": "orthogonal"
         }
     };
+    
 }
 exports.Widget = function (x, y, text, backColor, textColor) {
     this.data = {

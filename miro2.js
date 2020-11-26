@@ -146,7 +146,7 @@ async function a() {
             });
     });//Промис закончился
     //Тут можно исполнять код после того, как код в вышеупомянутом промисе окончил свою работу
-    mainPromise.then(() => {
+    mainPromise.then(async () => {
         console.log(`Загрузка таблицы https://docs.google.com/spreadsheets/d/${rg.tid} с листа ${rg.sid} прошла успешно.`)
         var SubProcessItem =
         {
@@ -174,16 +174,15 @@ async function a() {
         /* Start */
         // console.log(SubProcessItem.isProcessBlank)
         // for(x = 0; x < 11; x++) { console.log(SubProcessItem.Name[x][0]); }
+        console.log(SubProcessItem.dataPractice);
+        let tempWidget = new Widget.Widget(SubProcessItem);
+        await tempWidget.send(SubProcessItem.Provider[4]);
         for (x = 0; x < SubProcessItem.MilestoneTitleCount.length - 1; x++)//Перебор первого массива с титлами Вехов
         {
             requestData.toSendProcessTitle.push(SubProcessItem.Name[x][0])
-            
+
         }
-        // a = new Widget.Widget(requestData);
-        // send.sendData(SubProcessItem);
-        // console.log(requestData.toSendDataMilestone);
-        // send.sendData(requestData);
-        
+
     })
 }
 function componentToHex(c) {
@@ -239,7 +238,7 @@ function getTitlesCountsProcess(lastRow, SubProcessItem) {
     }
     return tempArray;
 }
-exports.getTitlesProcess = function(lastRow, SubProcessItem) {
+exports.getTitlesProcess = function (lastRow, SubProcessItem) {
     var tempArray = [];
     for (let n = 0; n < lastRow; n++) {
         if (SubProcessItem.ColorProcess[n] == '#d9ead3'
@@ -255,7 +254,7 @@ function getTitlesCountsProcessOnlyEnd(lastRow, SubProcessItem) {
     }
     return tempArray;
 }
-exports.unique = function(arr) {
+exports.unique = function (arr) {
     let result = [];
 
     for (let str of arr) {
