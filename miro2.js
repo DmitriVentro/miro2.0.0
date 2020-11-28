@@ -3,6 +3,7 @@ var qs = require('qs');
 var fs = require('fs');
 var send = require('./sendData.js');
 var Widget = require('./Widget');
+var miroFunc = require('./miroFunctions');
 // var vmiro = require('./files/miroVariables.js');
 // var bmiro = require('./files/sendData.js');
 var style = require('./Widgets/style_module.js')
@@ -47,10 +48,10 @@ async function a() {
     }
     var rg = //request Google
     {
-        tid: '12_1YRHmFzCQMJb4D5oAQqxd3-y-mkaM82RPlRv5XmPI',
+        tid: '1r3prmQHYOwqc9z-OPikOyQH8A28MBI-RUFkHifQdKuM',
         sid: 'SIPOC (для Miro)',
-        urlSheetColor: 'https://sheets.googleapis.com/v4/spreadsheets/12_1YRHmFzCQMJb4D5oAQqxd3-y-mkaM82RPlRv5XmPI?includeGridData=true&ranges=SIPOC (для Miro)',
-        urlSheet: 'https://sheets.googleapis.com/v4/spreadsheets/12_1YRHmFzCQMJb4D5oAQqxd3-y-mkaM82RPlRv5XmPI/values/SIPOC (для Miro)',
+        urlSheetColor: `https://sheets.googleapis.com/v4/spreadsheets/1r3prmQHYOwqc9z-OPikOyQH8A28MBI-RUFkHifQdKuM?includeGridData=true&ranges=SIPOC (для Miro)`,
+        urlSheet: `https://sheets.googleapis.com/v4/spreadsheets/1r3prmQHYOwqc9z-OPikOyQH8A28MBI-RUFkHifQdKuM/values/SIPOC (для Miro)`,
         google_refresh_token: '1//0c-HAMQqviQPXCgYIARAAGAwSNwF-L9IrxwXh5A9PWgDu8gBYxVkMuGnpPz9MD-d0PgUyLf5qRnncSd-fTqYrvjFuIjzT8MxEYk0',
         urlToken: 'https://oauth2.googleapis.com/token'
     }
@@ -147,41 +148,36 @@ async function a() {
     });//Промис закончился
     //Тут можно исполнять код после того, как код в вышеупомянутом промисе окончил свою работу
     mainPromise.then(async () => {
+
         console.log(`Загрузка таблицы https://docs.google.com/spreadsheets/d/${rg.tid} с листа ${rg.sid} прошла успешно.`)
         var SubProcessItem =
         {
             Name: responseData.dataProcess,
             Milestone: responseData.dataMilestone,
-            Practice: responseData.dataPractice, //массив с содержимым всех ячеек соответствующего столбца
+            Practice: convertPractice(responseData.dataPractice), //массив с содержимым всех ячеек соответствующего столбца
             Provider: responseData.dataProvider, //массив с содержимым всех ячеек соответствующего столбца
             Resource: responseData.dataResource, //массив с содержимым всех ячеек соответствующего столбца
             ResourceDemand: responseData.dataResourceDemand, //массив с содержимым всех ячеек соответствующего столбца
             Product: responseData.dataProduct, //массив с содержимым всех ячеек соответствующего столбца
             UserDemand: responseData.dataUserDemand, //массив с содержимым всех ячеек соответствующего столбца
             User: responseData.dataUser, //массив с содержимым всех ячеек соответствующего столбца
-            isMilestoneBlank: isBlank(responseData.lastRow, responseData.dataMilestone), //массив с булл содержимым пустая/непустая ячеек столбца
-            isProcessBlank: isBlank(responseData.lastRow, responseData.dataProcess),
+            isMilestoneBlank: miroFunc.isBlank(responseData.lastRow, responseData.dataMilestone), //массив с булл содержимым пустая/непустая ячеек столбца
+            isProcessBlank: miroFunc.isBlank(responseData.lastRow, responseData.dataProcess),
             ColorProcess: responseData.colorValuesProcess, //цвета процессов
             ColorMilestone: responseData.colorValuesMilestone,
-            MilestoneTitleCount: milestoneTitleCount(responseData.lastRow, responseData.dataMilestone),
-            MilestoneTitle: milestoneTitle(responseData.dataMilestone, responseData.lastRow),
+            MilestoneTitleCount: miroFunc.milestoneTitleCount(responseData.lastRow, responseData.dataMilestone),
+            MilestoneTitle: miroFunc.milestoneTitle(responseData.dataMilestone, responseData.lastRow),
         }
-        var ProcessTitleCount = getTitlesCountsProcess(responseData.lastRow, SubProcessItem);
+        var ProcessTitleCount = miroFunc.getTitlesCountsProcess(responseData.lastRow, SubProcessItem);
         SubProcessItem.MilestoneTitleCount.push(ProcessTitleCount[ProcessTitleCount.length - 1]);
         console.log('Структура сформирована.');
-        var tt = getTitlesCountsProcessOnlyEnd(responseData.lastRow, SubProcessItem);
+        var tt = miroFunc.getTitlesCountsProcessOnlyEnd(responseData.lastRow, SubProcessItem);
         console.log(tt[tt.length - 1]);
         /* Start */
-        // console.log(SubProcessItem.isProcessBlank)
-        // for(x = 0; x < 11; x++) { console.log(SubProcessItem.Name[x][0]); }
-        console.log(SubProcessItem.dataPractice);
-        let tempWidget = new Widget.Widget(SubProcessItem);
-        await tempWidget.send(SubProcessItem.Provider[4]);
-        for (x = 0; x < SubProcessItem.MilestoneTitleCount.length - 1; x++)//Перебор первого массива с титлами Вехов
-        {
-            requestData.toSendProcessTitle.push(SubProcessItem.Name[x][0])
 
-        }
+        let tempWidget = new Widget.Widget(SubProcessItem);
+        tempWidget.sortStructure();
+
 
     })
 }
@@ -206,62 +202,11 @@ function getBackground(tempData) {
     }
     return tempArray;
 }
-function isBlank(lastRow, data) {
-    var tempArray = [];
 
-    for (var Jungle = 0; Jungle < lastRow; Jungle++) {
-        if (data[Jungle] == null || data[Jungle] == '' || data[Jungle] == undefined) { tempArray.push(false); }
-        else { tempArray.push(true); }
+function convertPractice(responseData) {
+    let a = [];
+    for (let index = 0; index < responseData.length; index++) {
+        a.push(responseData[index].join(''));
     }
-    return tempArray;
-}
-function milestoneTitleCount(lastRow, dataMilestone) {
-    var tempArray = [];
-    milestoneBlanks = isBlank(lastRow, dataMilestone);
-    for (var Jungle = 0; Jungle < lastRow; Jungle++) {
-        if (milestoneBlanks[Jungle] == true) { tempArray.push(Jungle); }
-    }
-    return tempArray;
-}
-function milestoneTitle(data, lastRow) {
-    var tempArray = [];
-    milestoneBlanks = isBlank(lastRow, data);
-    for (var Jungle = 0; Jungle < lastRow; Jungle++) {
-        if (milestoneBlanks[Jungle] == true) { tempArray.push(data[Jungle]); }
-    }
-    return tempArray;
-}
-function getTitlesCountsProcess(lastRow, SubProcessItem) {
-    var tempArray = [];
-    for (let n = 0; n < lastRow; n++) {
-        if (SubProcessItem.ColorProcess[n] == '#d9ead3') { tempArray.push(n); }
-    }
-    return tempArray;
-}
-exports.getTitlesProcess = function (lastRow, SubProcessItem) {
-    var tempArray = [];
-    for (let n = 0; n < lastRow; n++) {
-        if (SubProcessItem.ColorProcess[n] == '#d9ead3'
-            && SubProcessItem.isProcessBlank[n] == true) { tempArray.push(SubProcessItem.Name[n]); console.log(tempArray[n]) }
-    }
-    return tempArray;
-}
-function getTitlesCountsProcessOnlyEnd(lastRow, SubProcessItem) {
-    var tempArray = [];
-    for (let n = 0; n < lastRow; n++) {
-        if (SubProcessItem.ColorProcess[n] == '#d9ead3'
-            && SubProcessItem.isProcessBlank[n] == false) { tempArray.push(n) }
-    }
-    return tempArray;
-}
-exports.unique = function (arr) {
-    let result = [];
-
-    for (let str of arr) {
-        if (!result.includes(str) && str != undefined) {
-            result.push(str);
-        }
-    }
-
-    return result;
+    return a;
 }

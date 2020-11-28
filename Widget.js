@@ -13,7 +13,8 @@ module.exports.Widget = class Widget {
         tempColorLine,
         prex,
         prey,
-        preId) {
+        preId,
+        titleProcess) {
         this.data = tempData;
         this.X_DISTANCE = X_DISTANCE;
         this.Y_DISTANCE = Y_DISTANCE;
@@ -26,6 +27,9 @@ module.exports.Widget = class Widget {
         this.x = prex;
         this.y = prey;
         this.preId = preId;
+        this.titleProcess = titleProcess;
+        this.numberWidget = 0;
+        // console.log(this.data.Practice);
     }
     processName(item) { //item - практика по индексу
         if (item == "Sales") {
@@ -64,24 +68,121 @@ module.exports.Widget = class Widget {
             this.textColor = styles.Color.HEX.BLACK;
         }
     }
-    async send(item, preId) {
-        if (preId == undefined) {
+
+    async sortStructure() {
+        let nestedWidgets;
+        for (this.numberWidget; this.numberWidget < this.data.Name.length; this.numberWidget++) {
+            if (this.data.ColorProcess[this.numberWidget] == styles.Color.HEX.DeadGreen) {
+                // await this.send(this.data.Name[index], this.data.Practice, this.preId);
+                while (this.data.ColorProcess[this.numberWidget + 1] != styles.Color.HEX.DeadGreen) {
+                    if (this.data.User[this.numberWidget + 1] != undefined) {
+                        try {
+                            nestedWidgets = this.data.User[this.numberWidget + 1][0].split(', ');
+
+                            await this.send(
+                                this.data.Practice[this.numberWidget + 1],
+                                this.data.Name[this.numberWidget + 1],
+                                nestedWidgets,
+                                this.preId);
+
+                        } catch (error) { }
+                    }
+                    this.numberWidget++;
+                }
+            }
+        }
+    }
+
+    nestedAlgorithm(nestedWidget) {
+        if (nestedWidget == 'Аналитик') {
+            let res = this.data.Practice.indexOf('BA', this.numberWidget + 1);
+            console.log('BA - ', res);
+            this.send(this.data.Practice[res], this.data.Name[res], this.preId)
+            return res;
+        }
+        else if (nestedWidget == 'Sales') {
+            let res = this.data.Practice.indexOf('Sales', this.numberWidget + 1);
+            console.log('Sales - ', res);
+            this.send(this.data.Practice[res], this.data.Name[res], this.preId)
+            return res;
+        }
+        else if (nestedWidget == 'Dev') {
+            let res = this.data.Practice.indexOf('Dev', this.numberWidget + 1);
+            console.log('Dev - ', res);
+            this.send(this.data.Practice[res], this.data.Name[res], this.preId)
+            return res;
+        }
+        else if (nestedWidget == 'РФК Sales') {
+            let res = this.data.Practice.indexOf('РФК производственной команды', this.numberWidget + 1);
+            console.log('РФК производственной команды - ', res);
+            this.send(this.data.Practice[res], this.data.Name[res], this.preId)
+            return res;
+        }
+        else if (nestedWidget == 'РФК Sales') {
+            let res = this.data.Practice.indexOf('РФК производственной команды', this.numberWidget + 1);
+            console.log('РФК производственной команды - ', res);
+            this.send(this.data.Practice[res], this.data.Name[res], this.preId)
+            return res;
+        }
+
+    }
+
+    async send(item, text, nestedWidgets, preId) {
+
+        if (nestedWidgets != undefined) {
+            if (this.preId == undefined) {
+                // console.log(item);
+                this.processName(item);
+                var response = await requestMiro.sendData(0, 0, this.color, text, this.textColor, text)
+                this.preId = response.response.data.id;
+                this.x = response.response.data.x;
+                this.y = response.response.data.y;
+                this.colorLine = this.color;
+                for (let index = 0; index < nestedWidgets.length; index++) {
+                    nestedIndex = this.nestedAlgorithm(nestedWidgets[index], index);                
+                }
+            }
+            else {
+                this.processName(item);
+                // console.log(item);
+                var response = await requestMiro.sendData(
+                    this.x,
+                    this.y + this.Y_DISTANCE,
+                    this.color,
+                    text,
+                    this.textColor,
+                    this.colorLine,
+                    this.preId);
+                this.colorLine = this.color;
+                this.preId = response.response.data.id;
+                this.x = response.response.data.x;
+                this.y = response.response.data.y;
+                // console.log(preId, this.x, this.y);
+                for (let index = 0; index < nestedWidgets.length; index++) {
+                    this.nestedAlgorithm(nestedWidgets[index], index);
+                    // console.log(this.preId, this.x, this.y);
+                }
+            }
+        }
+        else if (this.preId == undefined) {
+            // console.log(item);
             this.processName(item);
-            var response = await requestMiro.sendData(0, 0, this.color, item, this.textColor)
+            var response = await requestMiro.sendData(0, 0, this.color, text, this.textColor, text)
             this.preId = response.response.data.id;
             this.x = response.response.data.x;
             this.y = response.response.data.y;
             this.colorLine = this.color;
-            console.log(this.preId, this.x, this.y);
+
+            // console.log(this.preId, this.x, this.y);
         }
         else {
             this.processName(item);
-            // console.log(this.x, this.y);
+            // console.log(item);
             var response = await requestMiro.sendData(
                 this.x + this.X_DISTANCE,
                 this.y,
                 this.color,
-                item,
+                text,
                 this.textColor,
                 this.colorLine,
                 this.preId);
@@ -90,17 +191,16 @@ module.exports.Widget = class Widget {
             this.preId = response.response.data.id;
             this.x = response.response.data.x;
             this.y = response.response.data.y;
-            console.log(preId, this.x, this.y);
+            // console.log(preId, this.x, this.y);
         }
-        return this.preId;
     }
 }
 
 // async function foo(Widget) {
-//     a = new Widget([10, 10, 10]);
-//     test = await a.send("РП");
-//     test1 = await a.send("Sales", test);
-//     test2 = await a.send("Dev", test1);
-//     test3 = await a.send("Des", test2);
+//     nestedWidgets = new Widget([10, 10, 10]);
+//     test = await nestedWidgets.send("РП");
+//     test1 = await nestedWidgets.send("Sales", test);
+//     test2 = await nestedWidgets.send("Dev", test1);
+//     test3 = await nestedWidgets.send("Des", test2);
 // }
 // foo(this.Widget);
