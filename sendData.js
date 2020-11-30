@@ -10,9 +10,7 @@ exports.sendData = function (x, y, color, item, textColor, colorLine, preId) {
         dataaconfig = new style.MiroConfig(dataa.data);
         return axios(dataaconfig.data)
             .then(response => { return { response } })
-            .catch(error => {
-                console.log(error.response.data)
-            });
+            .catch(error => {  });
     }
     else {
         dataa = new style.Widget(x, y, item, color, textColor);
@@ -25,7 +23,7 @@ exports.sendData = function (x, y, color, item, textColor, colorLine, preId) {
                 axios(LineConfig.data);
                 return { response } 
                 })
-            .catch(error => { console.log(error.response.data) })
+            .catch(error => {  });
                 
     }
 }

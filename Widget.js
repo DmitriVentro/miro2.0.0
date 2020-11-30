@@ -4,7 +4,7 @@ module.exports.Widget = class Widget {
     constructor(
         tempData,
         X_DISTANCE = 700,
-        Y_DISTANCE = 700,
+        Y_DISTANCE = 400,
         timeout = 7000,
         nameOf,
         indexItem,
@@ -14,7 +14,9 @@ module.exports.Widget = class Widget {
         prex,
         prey,
         preId,
-        titleProcess) {
+        titleProcess,
+        nestX,
+        nestY) {
         this.data = tempData;
         this.X_DISTANCE = X_DISTANCE;
         this.Y_DISTANCE = Y_DISTANCE;
@@ -29,7 +31,9 @@ module.exports.Widget = class Widget {
         this.preId = preId;
         this.titleProcess = titleProcess;
         this.numberWidget = 0;
-        // console.log(this.data.Practice);
+        this.nestX = nestX;
+        this.nestY = nestY;
+        console.log(this.data.Practice);
     }
     processName(item) { //item - практика по индексу
         if (item == "Sales") {
@@ -78,13 +82,12 @@ module.exports.Widget = class Widget {
                     if (this.data.User[this.numberWidget + 1] != undefined) {
                         try {
                             nestedWidgets = this.data.User[this.numberWidget + 1][0].split(', ');
-
+                            // console.log('nestedWidget - ', this.numberWidget + 1);
+                            // console.log(nestedWidgets);
                             await this.send(
                                 this.data.Practice[this.numberWidget + 1],
                                 this.data.Name[this.numberWidget + 1],
-                                nestedWidgets,
-                                this.preId);
-
+                                nestedWidgets);
                         } catch (error) { }
                     }
                     this.numberWidget++;
@@ -95,33 +98,24 @@ module.exports.Widget = class Widget {
 
     nestedAlgorithm(nestedWidget) {
         if (nestedWidget == 'Аналитик') {
-            let res = this.data.Practice.indexOf('BA', this.numberWidget + 1);
-            console.log('BA - ', res);
+            let res = this.data.Practice.find('BA', this.numberWidget);
             return res;
         }
         else if (nestedWidget == 'Sales') {
-            let res = this.data.Practice.indexOf('Sales', this.numberWidget + 1);
-            console.log('Sales - ', res);
+            let res = this.data.Practice.find('Sales', this.numberWidget);
             return res;
         }
         else if (nestedWidget == 'Dev') {
-            let res = this.data.Practice.indexOf('Dev', this.numberWidget + 1);
-            console.log('Dev - ', res);
+            let res = this.data.Practice.find('Dev', this.numberWidget);
             return res;
         }
         else if (nestedWidget == 'РФК Sales') {
-            let res = this.data.Practice.indexOf('РФК производственной команды', this.numberWidget + 1);
-            console.log('РФК производственной команды - ', res);
-            return res;
-        }
-        else if (nestedWidget == 'РФК Sales') {
-            let res = this.data.Practice.indexOf('РФК производственной команды', this.numberWidget + 1);
-            console.log('РФК производственной команды - ', res);
+            let res = this.data.Practice.find('РФК производственной команды', this.numberWidgets);
             return res;
         }
     }
 
-    async send(item, text, nestedWidgets, nestX, nestY) {
+    async send(item, text, nestedWidgets) {
 
         if (nestedWidgets != undefined) {
             // console.log("if nestedWidget != undefined");
@@ -133,19 +127,24 @@ module.exports.Widget = class Widget {
                 this.x = response.response.data.x;
                 this.y = response.response.data.y;
                 this.colorLine = this.color;
+                this.nestX = this.x;
+                this.nestY = this.y;
                 for (let index = 0; index < nestedWidgets.length; index++) {
                     var nestedIndex = this.nestedAlgorithm(nestedWidgets[index], index);
-                    console.log('nestedIndex ', nestedIndex);
+                    // console.log('nestedIndex ', nestedIndex);
 
                     if (nestedIndex != undefined) {
                         var response = await this.sendNested(
                             this.data.Practice[nestedIndex],
                             this.data.Name[nestedIndex],
-                            this.x,
-                            this.y + this.Y_DISTANCE);
+                            this.nestX,
+                            this.nestY + this.Y_DISTANCE);
                     }
                 }
+                this.x = response.response.data.x;
                 this.x += this.X_DISTANCE;
+                this.nestX = response.response.data.x;
+                this.nestY += this.X_DISTANCE;
             }
             // this.send(this.data.Practice[res], this.data.Name[res], this.preId)
 
@@ -165,41 +164,48 @@ module.exports.Widget = class Widget {
                 this.preId = response.response.data.id;
                 this.x = response.response.data.x;
                 this.y = response.response.data.y;
+                this.nestX = this.x;
+                this.nestY = this.y;
                 // console.log(preId, this.x, this.y);
                 for (let index = 0; index < nestedWidgets.length; index++) {
                     var nestedIndex = this.nestedAlgorithm(nestedWidgets[index], index);
-                    console.log('nestedIndex ', nestedIndex);
+                    // console.log('nestedIndex ', nestedIndex);
                     if (nestedIndex != undefined) {
                         var response = await this.sendNested(
                             this.data.Practice[nestedIndex],
                             this.data.Name[nestedIndex],
-                            this.x,
-                            this.y + this.Y_DISTANCE);
+                            this.nestX,
+                            this.nestY + this.Y_DISTANCE);
                     }
                 }
+                this.x = response.response.data.x;
                 this.x += this.X_DISTANCE;
+                this.nestX = response.response.data.x;
+                this.nestY += this.X_DISTANCE;
             }
         }
     }
     async sendNested(item, text, nestX, nestY) {
         if (this.preId == undefined) {
-            // console.log("else if (this.preId == undefined)");
             this.processName(item);
-            var response = await requestMiro.sendData(nestX, nestY, this.color, text, this.textColor, text)
+            var response = await requestMiro.sendData(
+                nestX, 
+                nestY, 
+                this.color, 
+                text, 
+                this.textColor)
             this.preId = response.response.data.id;
-            this.x = response.response.data.x;
-            this.y = response.response.data.y;
+            this.nestX = response.response.data.x;
+            this.nestY = response.response.data.y;
             this.colorLine = this.color;
 
             // console.log(this.preId, this.x, this.y);
         }
         else {
-            // console.log("last else")
             this.processName(item);
-            // console.log(item);
             var response = await requestMiro.sendData(
                 nestX,
-                nestY,
+                nestY + this.Y_DISTANCE,
                 this.color,
                 text,
                 this.textColor,
@@ -208,8 +214,8 @@ module.exports.Widget = class Widget {
 
             this.colorLine = this.color;
             this.preId = response.response.data.id;
-            this.x = response.response.data.x;
-            this.y = response.response.data.y;
+            this.nestX = response.response.data.x;
+            this.nestY = response.response.data.y;
             // console.log(preId, this.x, this.y);
         }
     }
