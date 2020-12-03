@@ -3,8 +3,8 @@ var styles = require('./Widgets/style_module');
 module.exports.Widget = class Widget {
     constructor(
         tempData,
-        X_DISTANCE = 400,
-        Y_DISTANCE = 150,
+        X_DISTANCE = 700,
+        Y_DISTANCE = 700,
         timeout = 7000,
         nameOf,
         indexItem,
@@ -97,41 +97,36 @@ module.exports.Widget = class Widget {
         if (nestedWidget == 'Аналитик') {
             let res = this.data.Practice.indexOf('BA', this.numberWidget + 1);
             console.log('BA - ', res);
-            this.send(this.data.Practice[res], this.data.Name[res], this.preId)
             return res;
         }
         else if (nestedWidget == 'Sales') {
             let res = this.data.Practice.indexOf('Sales', this.numberWidget + 1);
             console.log('Sales - ', res);
-            this.send(this.data.Practice[res], this.data.Name[res], this.preId)
             return res;
         }
         else if (nestedWidget == 'Dev') {
             let res = this.data.Practice.indexOf('Dev', this.numberWidget + 1);
             console.log('Dev - ', res);
-            this.send(this.data.Practice[res], this.data.Name[res], this.preId)
             return res;
         }
         else if (nestedWidget == 'РФК Sales') {
             let res = this.data.Practice.indexOf('РФК производственной команды', this.numberWidget + 1);
             console.log('РФК производственной команды - ', res);
-            this.send(this.data.Practice[res], this.data.Name[res], this.preId)
             return res;
         }
         else if (nestedWidget == 'РФК Sales') {
             let res = this.data.Practice.indexOf('РФК производственной команды', this.numberWidget + 1);
             console.log('РФК производственной команды - ', res);
-            this.send(this.data.Practice[res], this.data.Name[res], this.preId)
             return res;
         }
-
     }
 
-    async send(item, text, nestedWidgets, preId) {
+    async send(item, text, nestedWidgets, nestX, nestY) {
 
         if (nestedWidgets != undefined) {
+            // console.log("if nestedWidget != undefined");
             if (this.preId == undefined) {
-                // console.log(item);
+                // console.log("this.preId == undefined");
                 this.processName(item);
                 var response = await requestMiro.sendData(0, 0, this.color, text, this.textColor, text)
                 this.preId = response.response.data.id;
@@ -139,15 +134,29 @@ module.exports.Widget = class Widget {
                 this.y = response.response.data.y;
                 this.colorLine = this.color;
                 for (let index = 0; index < nestedWidgets.length; index++) {
-                    nestedIndex = this.nestedAlgorithm(nestedWidgets[index], index);                
+                    var nestedIndex = this.nestedAlgorithm(nestedWidgets[index], index);
+                    console.log('nestedIndex ', nestedIndex);
+
+                    if (nestedIndex != undefined) {
+                        var response = await this.sendNested(
+                            this.data.Practice[nestedIndex],
+                            this.data.Name[nestedIndex],
+                            this.x,
+                            this.y + this.Y_DISTANCE);
+                    }
                 }
+                this.x += this.X_DISTANCE;
+                this.y = response.response.data.y;
             }
+            // this.send(this.data.Practice[res], this.data.Name[res], this.preId)
+
             else {
+                // console.log("'if nested !=' else?")
                 this.processName(item);
                 // console.log(item);
                 var response = await requestMiro.sendData(
-                    this.x,
-                    this.y + this.Y_DISTANCE,
+                    this.x + this.X_DISTANCE,
+                    this.y,
                     this.color,
                     text,
                     this.textColor,
@@ -159,15 +168,26 @@ module.exports.Widget = class Widget {
                 this.y = response.response.data.y;
                 // console.log(preId, this.x, this.y);
                 for (let index = 0; index < nestedWidgets.length; index++) {
-                    this.nestedAlgorithm(nestedWidgets[index], index);
-                    // console.log(this.preId, this.x, this.y);
+                    var nestedIndex = this.nestedAlgorithm(nestedWidgets[index], index);
+                    console.log('nestedIndex ', nestedIndex);
+                    if (nestedIndex != undefined) {
+                        var response = await this.sendNested(
+                            this.data.Practice[nestedIndex],
+                            this.data.Name[nestedIndex],
+                            this.x,
+                            this.y + this.Y_DISTANCE);
+                    }
                 }
+                this.x += this.X_DISTANCE;
+                this.y = response.response.data.y;
             }
         }
-        else if (this.preId == undefined) {
-            // console.log(item);
+    }
+    async sendNested(item, text, nestX, nestY) {
+        if (this.preId == undefined) {
+            // console.log("else if (this.preId == undefined)");
             this.processName(item);
-            var response = await requestMiro.sendData(0, 0, this.color, text, this.textColor, text)
+            var response = await requestMiro.sendData(nestX, nestY, this.color, text, this.textColor, text)
             this.preId = response.response.data.id;
             this.x = response.response.data.x;
             this.y = response.response.data.y;
@@ -176,11 +196,12 @@ module.exports.Widget = class Widget {
             // console.log(this.preId, this.x, this.y);
         }
         else {
+            // console.log("last else")
             this.processName(item);
             // console.log(item);
             var response = await requestMiro.sendData(
-                this.x + this.X_DISTANCE,
-                this.y,
+                nestX,
+                nestY,
                 this.color,
                 text,
                 this.textColor,
