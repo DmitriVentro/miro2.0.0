@@ -146,7 +146,6 @@ module.exports.Widget = class Widget {
                     }
                 }
                 this.x += this.X_DISTANCE;
-                this.y = response.response.data.y;
             }
             // this.send(this.data.Practice[res], this.data.Name[res], this.preId)
 
@@ -179,7 +178,6 @@ module.exports.Widget = class Widget {
                     }
                 }
                 this.x += this.X_DISTANCE;
-                this.y = response.response.data.y;
             }
         }
     }
