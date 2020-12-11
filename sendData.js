@@ -5,9 +5,11 @@ const { resolve } = require("path");
 const { rejects } = require("assert");
 exports.sendData = function (x, y, color, item, textColor, colorLine, preId) {
     var fId;
-    if (colorLine == undefined && preId == undefined) {
-        dataa = new style.Widget(x, y, item, color, textColor);
-        dataaconfig = new style.MiroConfig(dataa.data);
+    if (preId == undefined) {
+        console.log(preId)
+        // console.log("sendData - if");
+        let dataa = new style.Widget(x, y, item, color, textColor);
+        let dataaconfig = new style.MiroConfig(dataa.data);
         return axios(dataaconfig.data)
             .then(response => { return { response } })
             .catch(error => {
@@ -15,8 +17,9 @@ exports.sendData = function (x, y, color, item, textColor, colorLine, preId) {
             });
     }
     else {
-        dataa = new style.Widget(x, y, item, color, textColor);
-        dataaconfig = new style.MiroConfig(dataa.data);
+        // console.log("sendData - else");
+        let dataa = new style.Widget(x, y, item, color, textColor);
+        let dataaconfig = new style.MiroConfig(dataa.data);
         return axios(dataaconfig.data)
             .then(response => {
                 fId = response.data.id;
