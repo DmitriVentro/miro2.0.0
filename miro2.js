@@ -175,9 +175,9 @@ async function a() {
         console.log(tt[tt.length - 1]);
         /* Start */
 
-        let tempWidget = new Widget.Widget(SubProcessItem);
-        tempWidget.sortStructure();
-
+        // let tempWidget = new Widget.Widget(SubProcessItem);
+        // tempWidget.sortStructure();
+        fs.writeFileSync('tableStructure.json', JSON.stringify(SubProcessItem));
 
     })
 }

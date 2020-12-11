@@ -29,32 +29,34 @@ module.exports.Widget = class Widget {
 
     }
 
+    sortStructureForNested() {
+
+    }
+
     sortStructure() {
-        for (this.numberWidget; this.numberWidget < this.data.Name.length; this.numberWidget++) {
+        for (this.numberWidget; this.numberWidget < this.data.Name.length; ++this.numberWidget) {
             if (this.data.ColorProcess[this.numberWidget] == styles.Color.HEX.DeadGreen) {
-                // await this.send(this.data.Name[index], this.data.Practice, this.preId);
                 while (this.data.ColorProcess[this.numberWidget + 1] != styles.Color.HEX.DeadGreen) {
-                    if (this.data.User[this.numberWidget + 1] != undefined) {
-                        try {
-                            let nestedWidgets = this.data.User[this.numberWidget + 1][0].split(', ');
-                            // console.log(this.numberWidget);
-                            // await this.send(
-                            //     this.data.Practice[this.numberWidget + 1],
-                            //     this.data.Name[this.numberWidget + 1],
-                            //     nestedWidgets);
-                            for (let nestedIndex = 0; nestedIndex < nestedWidgets.length; ++nestedIndex) {
-                                let yourIndex = this.nestedAlgorithm(nestedWidgets[nestedIndex], this.numberWidget);
-                                if (yourIndex != -1 && yourIndex != undefined) 
-                                { console.log(this.data.Name[yourIndex]); }
-                            }
-                        } catch (error) {  }
+                    if (this.data.Name[this.numberWidget + 1].length != 0 && 
+                        this.data.User[this.numberWidget + 1].length != 0) {
+                        let nestedWidgets = this.data.User[this.numberWidget + 1][0].split(', ');
+                        for (let nestedIndex = 0; nestedIndex < nestedWidgets.length; ++nestedIndex) {
+                            console.log(nestedWidgets[nestedIndex]);
+                        }
+                        // console.log(this.data.Name[this.numberWidget + 1]);
                     }
-                    this.numberWidget++;
+                    ++this.numberWidget;
                 }
             }
         }
-        this.widgetStructure.push(this.widgetInfo);
-        fs.writeFileSync("log.json", JSON.stringify(this.widgetStructure));
+        
+        // this.widgetStructure.push(this.widgetInfo);
+        // if (this.widgetStructure[0].length != 0 || this.widgetStructure == undefined)
+        //     fs.writeFileSync("log.json", JSON.stringify(this.widgetStructure));
+        // else {
+        //     try { fs.unlinkSync("log.json"); }
+        //     catch { console.log("Даже удалить не получилось, пиздец!") }
+        // }
     }
 
     async send(item, text, nestedWidgets, tempX, tempY) {
@@ -101,7 +103,7 @@ module.exports.Widget = class Widget {
         })
     }
 
-    processName(item) { //item - практика по индексу
+    processName(item) { //Работает!
         if (item == "Sales") {
             this.nameOf = "Sales";
             this.color = styles.Color.HEX.Sales;
@@ -141,7 +143,7 @@ module.exports.Widget = class Widget {
 
     nestedAlgorithm(nestedWidget, index) {
         if (nestedWidget == 'Аналитик') {
-            let res = this.data.Practice.indexOf((practice) => {practice == 'BA'});
+            let res = this.data.Practice.indexOf('BA', this.numberWidget);
             return res;
         }
         else if (nestedWidget == 'Sales') {
